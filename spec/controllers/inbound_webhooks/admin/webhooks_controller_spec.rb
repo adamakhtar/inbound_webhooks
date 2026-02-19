@@ -9,11 +9,16 @@ RSpec.describe InboundWebhooks::Admin::WebhooksController, type: :request do
     }.merge(attrs))
   end
 
+  include Devise::Test::IntegrationHelpers
+
+  let(:user) { User.create!(email: "admin@example.com", password: "password123") }
+
   before do
     InboundWebhooks.configure do |config|
       config.provider(:stripe)
       config.provider(:github)
     end
+    sign_in user
   end
 
   describe "GET /webhooks/admin/webhooks" do

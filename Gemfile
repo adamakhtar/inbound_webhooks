@@ -4,6 +4,7 @@ gemspec
 
 gem "puma"
 gem "pg"
+gem "devise"
 
 group :development, :test do
   gem "rspec-rails"
