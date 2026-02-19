@@ -1,7 +1,7 @@
 module InboundWebhooks
   class Webhook < ApplicationRecord
-    STATUSES = %w[pending processing processed failed].freeze
-    CLAIMABLE_STATUSES = %w[pending failed].freeze
+    STATUSES = %w[pending processing processed retrying failed unhandled].freeze
+    CLAIMABLE_STATUSES = %w[pending retrying].freeze
 
     validates :provider, presence: true
     validates :event_type, presence: true
@@ -13,8 +13,9 @@ module InboundWebhooks
     scope :pending, -> { where(status: "pending") }
     scope :processing, -> { where(status: "processing") }
     scope :processed, -> { where(status: "processed") }
+    scope :retrying, -> { where(status: "retrying") }
     scope :failed, -> { where(status: "failed") }
-    scope :retryable, -> { failed.where("retry_count < ?", 3) }
+    scope :unhandled, -> { where(status: "unhandled") }
 
     def self.claim_for_processing!(id)
       claimed = atomically_transition_to(id, "processing", from: CLAIMABLE_STATUSES)
@@ -25,6 +26,14 @@ module InboundWebhooks
       update!(status: "processed", processed_at: Time.current)
     end
 
+    def mark_retrying!(error)
+      update!(
+        status: "retrying",
+        error_message: error.is_a?(Exception) ? "#{error.class}: #{error.message}" : error.to_s
+      )
+      increment!(:retry_count)
+    end
+
     def mark_failed!(error)
       update!(
         status: "failed",
@@ -32,8 +41,8 @@ module InboundWebhooks
       )
     end
 
-    def increment_retry!
-      increment!(:retry_count)
+    def mark_unhandled!
+      update!(status: "unhandled")
     end
 
     def pending?
@@ -44,8 +53,16 @@ module InboundWebhooks
       status == "processed"
     end
 
+    def retrying?
+      status == "retrying"
+    end
+
     def failed?
       status == "failed"
+    end
+
+    def unhandled?
+      status == "unhandled"
     end
 
     private

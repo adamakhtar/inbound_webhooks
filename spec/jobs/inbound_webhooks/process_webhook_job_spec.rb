@@ -24,10 +24,10 @@ RSpec.describe InboundWebhooks::ProcessWebhookJob, type: :job do
       expect(webhook.processed_at).to be_present
     end
 
-    it "marks as processed when no handlers registered" do
+    it "marks as unhandled when no handlers registered" do
       described_class.new.perform(webhook.id)
 
-      expect(webhook.reload.status).to eq("processed")
+      expect(webhook.reload.status).to eq("unhandled")
     end
 
     it "calls wildcard handler" do
@@ -76,12 +76,12 @@ RSpec.describe InboundWebhooks::ProcessWebhookJob, type: :job do
       }.to have_enqueued_job(described_class)
 
       expect(webhook.reload.retry_count).to eq(1)
-      expect(webhook.status).to eq("pending")
+      expect(webhook.status).to eq("retrying")
       expect(webhook.error_message).to include("boom")
     end
 
     it "marks as failed when retries exhausted" do
-      webhook.update!(retry_count: 2)
+      webhook.update!(retry_count: 3, status: "retrying")
 
       InboundWebhooks.register_handler(
         provider: "stripe", event_type: "payment_intent.succeeded",

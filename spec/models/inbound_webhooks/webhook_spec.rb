@@ -34,10 +34,12 @@ RSpec.describe InboundWebhooks::Webhook, type: :model do
       InboundWebhooks::Webhook.create!(provider: "stripe", event_type: "charge.succeeded", payload: { "id" => "1" }, status: "pending")
       InboundWebhooks::Webhook.create!(provider: "github", event_type: "push", payload: { "id" => "2" }, status: "processed")
       InboundWebhooks::Webhook.create!(provider: "stripe", event_type: "charge.failed", payload: { "id" => "3" }, status: "failed")
+      InboundWebhooks::Webhook.create!(provider: "stripe", event_type: "charge.refunded", payload: { "id" => "4" }, status: "retrying")
+      InboundWebhooks::Webhook.create!(provider: "stripe", event_type: "charge.unknown", payload: { "id" => "5" }, status: "unhandled")
     end
 
     it "filters by provider" do
-      expect(InboundWebhooks::Webhook.by_provider("stripe").count).to eq(2)
+      expect(InboundWebhooks::Webhook.by_provider("stripe").count).to eq(4)
     end
 
     it "filters by event_type" do
@@ -52,8 +54,16 @@ RSpec.describe InboundWebhooks::Webhook, type: :model do
       expect(InboundWebhooks::Webhook.processed.count).to eq(1)
     end
 
+    it "filters retrying" do
+      expect(InboundWebhooks::Webhook.retrying.count).to eq(1)
+    end
+
     it "filters failed" do
       expect(InboundWebhooks::Webhook.failed.count).to eq(1)
+    end
+
+    it "filters unhandled" do
+      expect(InboundWebhooks::Webhook.unhandled.count).to eq(1)
     end
   end
 
@@ -66,8 +76,8 @@ RSpec.describe InboundWebhooks::Webhook, type: :model do
       expect(result.status).to eq("processing")
     end
 
-    it ".claim_for_processing! from failed" do
-      webhook.mark_failed!("error")
+    it ".claim_for_processing! from retrying" do
+      webhook.mark_retrying!("error")
       result = InboundWebhooks::Webhook.claim_for_processing!(webhook.id)
       expect(result).to be_a(InboundWebhooks::Webhook)
       expect(result.status).to eq("processing")
@@ -94,6 +104,13 @@ RSpec.describe InboundWebhooks::Webhook, type: :model do
       expect(webhook.processed_at).to be_present
     end
 
+    it "#mark_retrying!" do
+      webhook.mark_retrying!(StandardError.new("temporary failure"))
+      expect(webhook.reload.status).to eq("retrying")
+      expect(webhook.retry_count).to eq(1)
+      expect(webhook.error_message).to include("temporary failure")
+    end
+
     it "#mark_failed! with exception" do
       webhook.mark_failed!(StandardError.new("boom"))
       expect(webhook.reload.status).to eq("failed")
@@ -105,8 +122,9 @@ RSpec.describe InboundWebhooks::Webhook, type: :model do
       expect(webhook.reload.error_message).to eq("something went wrong")
     end
 
-    it "#increment_retry!" do
-      expect { webhook.increment_retry! }.to change { webhook.reload.retry_count }.by(1)
+    it "#mark_unhandled!" do
+      webhook.mark_unhandled!
+      expect(webhook.reload.status).to eq("unhandled")
     end
   end
 
@@ -119,8 +137,16 @@ RSpec.describe InboundWebhooks::Webhook, type: :model do
       expect(build_webhook(status: "processed")).to be_processed
     end
 
+    it "#retrying?" do
+      expect(build_webhook(status: "retrying")).to be_retrying
+    end
+
     it "#failed?" do
       expect(build_webhook(status: "failed")).to be_failed
+    end
+
+    it "#unhandled?" do
+      expect(build_webhook(status: "unhandled")).to be_unhandled
     end
   end
 end

@@ -9,7 +9,7 @@ module InboundWebhooks
       handler = InboundWebhooks.handler_for(webhook.provider, webhook.event_type)
 
       unless handler
-        webhook.mark_processed!
+        webhook.mark_unhandled!
         return
       end
 
@@ -24,11 +24,9 @@ module InboundWebhooks
     def handle_failure(webhook, handler, error)
       return unless webhook
 
-      webhook.increment_retry!
-
       if handler&.retry_enabled && webhook.retry_count < handler.max_retries
+        webhook.mark_retrying!(error)
         delay = handler.retry_delay_for(webhook.retry_count)
-        webhook.update!(status: "pending", error_message: format_error(error))
         self.class.set(wait: delay.seconds).perform_later(webhook.id)
       else
         webhook.mark_failed!(error)
