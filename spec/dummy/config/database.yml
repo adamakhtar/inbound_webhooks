@@ -1,0 +1,12 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+
+development:
+  <<: *default
+  database: inbound_webhooks_development
+
+test:
+  <<: *default
+  database: inbound_webhooks_test
