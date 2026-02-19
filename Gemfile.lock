@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     inbound_webhooks (0.1.0)
+      pagy (~> 9.0)
       rails (>= 7.0)
 
 GEM
@@ -135,6 +136,7 @@ GEM
     nio4r (2.7.5)
     nokogiri (1.19.1-arm64-darwin)
       racc (~> 1.4)
+    pagy (9.4.0)
     parallel (1.27.0)
     parser (3.3.10.0)
       ast (~> 2.4.1)
@@ -318,6 +320,7 @@ CHECKSUMS
   net-smtp (0.5.1) sha256=ed96a0af63c524fceb4b29b0d352195c30d82dd916a42f03c62a3a70e5b70736
   nio4r (2.7.5) sha256=6c90168e48fb5f8e768419c93abb94ba2b892a1d0602cb06eef16d8b7df1dca1
   nokogiri (1.19.1-arm64-darwin) sha256=dfe2d337e6700eac47290407c289d56bcf85805d128c1b5a6434ddb79731cb9e
+  pagy (9.4.0) sha256=db3f2e043f684155f18f78be62a81e8d033e39b9f97b1e1a8d12ad38d7bce738
   parallel (1.27.0) sha256=4ac151e1806b755fb4e2dc2332cbf0e54f2e24ba821ff2d3dcf86bf6dc4ae130
   parser (3.3.10.0) sha256=ce3587fa5cc55a88c4ba5b2b37621b3329aadf5728f9eafa36bbd121462aabd6
   pg (1.6.2-arm64-darwin) sha256=4d44500b28d5193b26674583d199a6484f80f1f2ea9cf54f7d7d06a1b7e316b6

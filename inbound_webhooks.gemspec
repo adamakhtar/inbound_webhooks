@@ -19,4 +19,5 @@ Gem::Specification.new do |spec|
   end
 
   spec.add_dependency "rails", ">= 7.0"
+  spec.add_dependency "pagy", "~> 9.0"
 end

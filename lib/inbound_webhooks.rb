@@ -1,3 +1,4 @@
+require "pagy"
 require "inbound_webhooks/version"
 require "inbound_webhooks/engine"
 require "inbound_webhooks/configuration"

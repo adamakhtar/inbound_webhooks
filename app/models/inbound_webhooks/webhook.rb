@@ -16,6 +16,11 @@ module InboundWebhooks
     scope :retrying, -> { where(status: "retrying") }
     scope :failed, -> { where(status: "failed") }
     scope :unhandled, -> { where(status: "unhandled") }
+    scope :by_statuses, ->(statuses) { where(status: statuses) }
+    scope :created_between, ->(from, to) { where(created_at: from..to) }
+    scope :processed_between, ->(from, to) { where(processed_at: from..to) }
+    scope :order_by_recently_processed, -> { order(Arel.sql("processed_at DESC NULLS LAST")) }
+    scope :order_by_recently_created, -> { order(created_at: :desc) }
 
     def self.claim_for_processing!(id)
       claimed = atomically_transition_to(id, "processing", from: CLAIMABLE_STATUSES)

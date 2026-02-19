@@ -1,9 +1,10 @@
 module InboundWebhooks
   class Configuration
-    attr_accessor :providers
+    attr_accessor :providers, :admin_base_controller
 
     def initialize
       @providers = {}
+      @admin_base_controller = "::ApplicationController"
     end
 
     def provider(name, **options)

@@ -1,0 +1,114 @@
+<h1>Inbound Webhooks</h1>
+
+<div class="iw-filters">
+  <%= form_tag(admin_webhooks_path, method: :get) do %>
+    <div class="iw-filter-group">
+      <label for="provider">Provider</label>
+      <select name="provider" id="provider">
+        <option value="">All providers</option>
+        <% registered_provider_names.each do |name| %>
+          <option value="<%= name %>" <%= "selected" if params[:provider] == name %>><%= name %></option>
+        <% end %>
+      </select>
+    </div>
+
+    <div class="iw-filter-group">
+      <label>Status</label>
+      <div class="iw-checkbox-group">
+        <% InboundWebhooks::Webhook::STATUSES.each do |status| %>
+          <label>
+            <input type="checkbox" name="statuses[]" value="<%= status %>"
+              <%= "checked" if Array(params[:statuses]).include?(status) %>>
+            <%= status %>
+          </label>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="iw-filter-group">
+      <label for="order">Order by</label>
+      <select name="order" id="order">
+        <option value="recently_processed" <%= "selected" if params[:order] != "recently_created" %>>Recently processed</option>
+        <option value="recently_created" <%= "selected" if params[:order] == "recently_created" %>>Recently created</option>
+      </select>
+    </div>
+
+    <div class="iw-filter-group">
+      <label>Created at</label>
+      <div class="iw-presets">
+        <%= preset_link(:created_at, "2h", "2h") %>
+        <%= preset_link(:created_at, "12h", "12h") %>
+        <%= preset_link(:created_at, "24h", "24h") %>
+        <%= preset_link(:created_at, "3d", "3d") %>
+        <%= preset_link(:created_at, "1w", "1w") %>
+      </div>
+      <div class="iw-date-filter-row">
+        <input type="datetime-local" name="created_at_from" value="<%= params[:created_at_from] %>">
+        <span>&ndash;</span>
+        <input type="datetime-local" name="created_at_to" value="<%= params[:created_at_to] %>">
+      </div>
+    </div>
+
+    <div class="iw-filter-group">
+      <label>Processed at</label>
+      <div class="iw-presets">
+        <%= preset_link(:processed_at, "2h", "2h") %>
+        <%= preset_link(:processed_at, "12h", "12h") %>
+        <%= preset_link(:processed_at, "24h", "24h") %>
+        <%= preset_link(:processed_at, "3d", "3d") %>
+        <%= preset_link(:processed_at, "1w", "1w") %>
+      </div>
+      <div class="iw-date-filter-row">
+        <input type="datetime-local" name="processed_at_from" value="<%= params[:processed_at_from] %>">
+        <span>&ndash;</span>
+        <input type="datetime-local" name="processed_at_to" value="<%= params[:processed_at_to] %>">
+      </div>
+    </div>
+
+    <div class="iw-filter-group" style="flex-direction: row; gap: 8px;">
+      <button type="submit" class="iw-btn">Filter</button>
+      <% if filter_active? %>
+        <%= link_to "Clear", admin_webhooks_path, class: "iw-btn iw-btn-outline" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<% if @webhooks.any? %>
+  <div class="iw-table-wrap">
+    <table class="iw-table">
+      <thead>
+        <tr>
+          <th>Provider</th>
+          <th>Event Type</th>
+          <th>Status</th>
+          <th>Retries</th>
+          <th>Error</th>
+          <th>Created</th>
+          <th>Processed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @webhooks.each do |webhook| %>
+          <tr>
+            <td><%= webhook.provider %></td>
+            <td><%= webhook.event_type %></td>
+            <td><%= status_badge(webhook.status) %></td>
+            <td><%= webhook.retry_count %></td>
+            <td><%= truncated_error(webhook.error_message) %></td>
+            <td><%= webhook.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
+            <td><%= webhook.processed_at&.strftime("%Y-%m-%d %H:%M:%S") || "—" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="iw-pagination">
+    <%== pagy_nav(@pagy) %>
+  </div>
+<% else %>
+  <div class="iw-empty">
+    <p>No webhooks found matching your filters.</p>
+  </div>
+<% end %>
