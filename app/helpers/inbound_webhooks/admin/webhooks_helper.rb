@@ -35,6 +35,10 @@ module InboundWebhooks
         InboundWebhooks.configuration.providers.keys.map(&:to_s).sort
       end
 
+      def backtrace_file_reference(line)
+        line[/\A(.*?:\d+)/, 1]
+      end
+
       def syntax_highlighted_json(data)
         json = data.is_a?(String) ? data : JSON.pretty_generate(data)
         escaped = ERB::Util.html_escape(json)

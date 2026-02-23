@@ -32,18 +32,26 @@ module InboundWebhooks
     end
 
     def mark_retrying!(error)
-      update!(
-        status: "retrying",
-        error_message: error.is_a?(Exception) ? "#{error.class}: #{error.message}" : error.to_s
-      )
+      attrs = { status: "retrying" }
+      if error.is_a?(Exception)
+        attrs[:error_message] = "#{error.class}: #{error.message}"
+        attrs[:error_backtrace] = error.backtrace&.first(100)&.join("\n")
+      else
+        attrs[:error_message] = error.to_s
+      end
+      update!(attrs)
       increment!(:retry_count)
     end
 
     def mark_failed!(error)
-      update!(
-        status: "failed",
-        error_message: error.is_a?(Exception) ? "#{error.class}: #{error.message}" : error.to_s
-      )
+      attrs = { status: "failed" }
+      if error.is_a?(Exception)
+        attrs[:error_message] = "#{error.class}: #{error.message}"
+        attrs[:error_backtrace] = error.backtrace&.first(100)&.join("\n")
+      else
+        attrs[:error_message] = error.to_s
+      end
+      update!(attrs)
     end
 
     def mark_unhandled!

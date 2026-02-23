@@ -283,6 +283,33 @@
     .iw-json-string { color: #a6e3a1; }
     .iw-json-number { color: #fab387; }
     .iw-json-bool { color: #cba6f7; }
+
+    .iw-backtrace {
+      margin: 0;
+      padding: 0 0 0 3em;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      list-style: decimal;
+      font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+    }
+
+    .iw-backtrace-line {
+      align-items: baseline;
+      gap: 0.5em;
+      margin-bottom: 0.25em;
+    }
+
+    .iw-backtrace-line code {
+      word-break: break-all;
+    }
+
+    .iw-backtrace-path {
+      cursor: pointer;
+    }
+
+    .iw-backtrace-path:hover {
+      color: var(--color-primary);
+    }
   </style>
 </head>
 <body>

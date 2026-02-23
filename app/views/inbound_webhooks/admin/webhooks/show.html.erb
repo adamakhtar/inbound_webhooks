@@ -43,6 +43,21 @@
     </div>
   <% end %>
 
+  <% if @webhook.error_backtrace.present? %>
+    <div class="iw-detail-card iw-detail-card-error iw-detail-card-full">
+      <h2>Backtrace</h2>
+      <ol class="iw-backtrace">
+        <% @webhook.error_backtrace.each_line do |line| %>
+          <% stripped = line.strip %>
+          <% file_ref = backtrace_file_reference(stripped) %>
+          <li class="iw-backtrace-line">
+            <code><% if file_ref %><span class="iw-backtrace-path" data-copy="<%= file_ref %>" title="Click to copy path"><%= file_ref %></span><%= stripped.delete_prefix(file_ref) %><% else %><%= stripped %><% end %></code>
+          </li>
+        <% end %>
+      </ol>
+    </div>
+  <% end %>
+
   <div class="iw-detail-card iw-detail-card-full">
     <h2>Payload</h2>
     <%= syntax_highlighted_json(@webhook.payload) %>
@@ -55,3 +70,17 @@
     </div>
   <% end %>
 </div>
+
+<script>
+document.addEventListener("click", function(e) {
+  var el = e.target.closest("[data-copy]");
+  if (!el) return;
+
+  navigator.clipboard.writeText(el.dataset.copy);
+
+  var isBtn = el.classList.contains("iw-copy-btn");
+  var original = el.innerHTML;
+  el.innerHTML = isBtn ? "&#x2713;" : "<span style='color:#155724'>Copied!</span>";
+  setTimeout(function() { el.innerHTML = original; }, 1500);
+});
+</script>

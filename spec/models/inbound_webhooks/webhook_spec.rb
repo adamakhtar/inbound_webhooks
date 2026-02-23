@@ -104,22 +104,48 @@ RSpec.describe InboundWebhooks::Webhook, type: :model do
       expect(webhook.processed_at).to be_present
     end
 
-    it "#mark_retrying!" do
-      webhook.mark_retrying!(StandardError.new("temporary failure"))
-      expect(webhook.reload.status).to eq("retrying")
+    it "#mark_retrying! with exception stores backtrace" do
+      error = begin
+                raise StandardError, "temporary failure"
+              rescue => e
+                e
+              end
+      webhook.mark_retrying!(error)
+      webhook.reload
+      expect(webhook.status).to eq("retrying")
       expect(webhook.retry_count).to eq(1)
       expect(webhook.error_message).to include("temporary failure")
+      expect(webhook.error_backtrace).to be_present
+      expect(webhook.error_backtrace.lines.first).to match(/webhook_spec\.rb:\d+/)
     end
 
-    it "#mark_failed! with exception" do
-      webhook.mark_failed!(StandardError.new("boom"))
-      expect(webhook.reload.status).to eq("failed")
+    it "#mark_retrying! with string does not store backtrace" do
+      webhook.mark_retrying!("temporary failure")
+      webhook.reload
+      expect(webhook.status).to eq("retrying")
+      expect(webhook.error_message).to eq("temporary failure")
+      expect(webhook.error_backtrace).to be_nil
+    end
+
+    it "#mark_failed! with exception stores backtrace" do
+      error = begin
+                raise StandardError, "boom"
+              rescue => e
+                e
+              end
+      webhook.mark_failed!(error)
+      webhook.reload
+      expect(webhook.status).to eq("failed")
       expect(webhook.error_message).to include("boom")
+      expect(webhook.error_backtrace).to be_present
+      expect(webhook.error_backtrace.lines.first).to match(/webhook_spec\.rb:\d+/)
     end
 
-    it "#mark_failed! with string" do
+    it "#mark_failed! with string does not store backtrace" do
       webhook.mark_failed!("something went wrong")
-      expect(webhook.reload.error_message).to eq("something went wrong")
+      webhook.reload
+      expect(webhook.error_message).to eq("something went wrong")
+      expect(webhook.error_backtrace).to be_nil
     end
 
     it "#mark_unhandled!" do

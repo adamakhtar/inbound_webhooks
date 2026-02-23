@@ -32,9 +32,5 @@ module InboundWebhooks
         webhook.mark_failed!(error)
       end
     end
-
-    def format_error(error)
-      "#{error.class}: #{error.message}\n#{error.backtrace&.first(5)&.join("\n")}"
-    end
   end
 end
