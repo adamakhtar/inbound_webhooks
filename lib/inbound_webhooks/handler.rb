@@ -1,14 +1,12 @@
 module InboundWebhooks
   class Handler
-    attr_reader :provider, :event_type, :block, :retry_enabled, :max_retries, :retry_delay
+    attr_reader :provider, :event_type, :handler_class
 
-    def initialize(provider:, event_type:, retry_enabled: true, max_retries: 3, retry_delay: :exponential, &block)
+    def initialize(provider:, event_type:, handler_class:, retry_defaults: {})
       @provider = provider.to_s
       @event_type = event_type.to_s
-      @retry_enabled = retry_enabled
-      @max_retries = max_retries
-      @retry_delay = retry_delay
-      @block = block
+      @handler_class = handler_class.to_s
+      @retry_defaults = retry_defaults
     end
 
     def matches?(provider, event_type)
@@ -19,17 +17,40 @@ module InboundWebhooks
     end
 
     def call(webhook)
-      @block.call(webhook)
+      @handler_class.constantize.new.call(webhook)
+    end
+
+    def retry_enabled
+      resolve_retry_config(:retry_enabled)
+    end
+
+    def max_retries
+      resolve_retry_config(:max_retries)
+    end
+
+    def retry_delay
+      resolve_retry_config(:retry_delay)
     end
 
     def retry_delay_for(attempt)
-      case @retry_delay
+      case retry_delay
       when :exponential
-        (2**attempt) * 5 # 5s, 10s, 20s, 40s...
+        (2**attempt) * 5
       when Integer, Float
-        @retry_delay
+        retry_delay
       else
         (2**attempt) * 5
+      end
+    end
+
+    private
+
+    def resolve_retry_config(key)
+      klass = @handler_class.constantize
+      if klass.respond_to?(key)
+        klass.public_send(key)
+      else
+        @retry_defaults.fetch(key, Provider::RETRY_DEFAULTS[key])
       end
     end
   end

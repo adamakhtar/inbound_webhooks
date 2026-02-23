@@ -37,14 +37,14 @@ This exposes `POST /webhooks/:provider` for all configured providers.
 
 ## Configuration
 
-Configure providers in an initializer:
+Configure providers and handlers in an initializer. `config.provider` returns an `InboundWebhooks::Provider` instance you use to register handlers.
 
 ```ruby
 # config/initializers/inbound_webhooks.rb
 
 InboundWebhooks.configure do |config|
   # Stripe — HMAC signature with timestamped format
-  config.provider(:stripe,
+  stripe = config.provider(:stripe,
     signature_header: "HTTP_STRIPE_SIGNATURE",
     signature_algorithm: "sha256",
     signature_format: :timestamped,
@@ -52,19 +52,26 @@ InboundWebhooks.configure do |config|
     event_type_key: "type"
   )
 
+  stripe.on "invoice.payment_failed", handler: "InvoiceFailureHandler"
+  stripe.on "charge.succeeded", "charge.failed"
+
   # GitHub — HMAC signature with simple format
-  config.provider(:github,
+  github = config.provider(:github,
     signature_header: "HTTP_X_HUB_SIGNATURE_256",
     signature_algorithm: "sha256",
     secret: ENV["GITHUB_WEBHOOK_SECRET"],
     event_type_key: "action"
   )
 
+  github.on "*", handler: "Github::CatchAllHandler"
+
   # Simple provider — API key only
-  config.provider(:acme,
+  acme = config.provider(:acme,
     api_key_header: "HTTP_X_API_KEY",
     api_key: ENV["ACME_WEBHOOK_API_KEY"]
   )
+
+  acme.on "notification", handler: "AcmeNotificationHandler"
 end
 ```
 
@@ -79,55 +86,90 @@ end
 | `api_key_header` | `nil` | Request header containing the API key |
 | `api_key` | `nil` | Expected API key (string or array for key rotation) |
 | `event_type_key` | `nil` | JSON key to extract event type from payload (default: `"type"`) |
+| `retry_enabled` | `true` | Default retry setting for handlers on this provider |
+| `max_retries` | `3` | Default max retries for handlers on this provider |
+| `retry_delay` | `:exponential` | Default retry delay for handlers on this provider |
 
 ## Registering Handlers
 
-Register handlers for specific providers and event types:
+Handlers are registered on providers using the `on` method. Each handler is a class with a `#call(webhook)` instance method.
 
 ```ruby
-# Handle a specific event
-InboundWebhooks.register_handler(
-  provider: "stripe",
-  event_type: "payment_intent.succeeded"
-) do |webhook|
-  PaymentIntent.find_by!(stripe_id: webhook.payload["data"]["object"]["id"]).mark_succeeded!
-end
+InboundWebhooks.configure do |config|
+  stripe = config.provider(:stripe,
+    signature_header: "HTTP_STRIPE_SIGNATURE",
+    signature_format: :timestamped,
+    secret: ENV["STRIPE_WEBHOOK_SECRET"],
+    event_type_key: "type"
+  )
 
-# Handle all events from a provider (wildcard)
-InboundWebhooks.register_handler(
-  provider: "github",
-  event_type: "*"
-) do |webhook|
-  GithubEventProcessor.new(webhook.payload).process
-end
+  # Explicit handler mapping
+  stripe.on "invoice.payment_failed", handler: "InvoiceFailureHandler"
+  stripe.on "invoice.payment_ok",     handler: "InvoiceOKHandler"
 
-# Custom retry configuration
-InboundWebhooks.register_handler(
-  provider: "stripe",
-  event_type: "invoice.payment_failed",
-  retry_enabled: true,
-  max_retries: 5,
-  retry_delay: 60  # fixed 60s delay
-) do |webhook|
-  InvoiceFailureHandler.call(webhook.payload)
-end
+  # Convention-based shorthand — derives class name from provider + event type
+  # "charge.succeeded" on :stripe => Stripe::ChargeSucceededHandler
+  stripe.on "charge.succeeded", "charge.failed", "customer.created"
 
-# Disable retries
-InboundWebhooks.register_handler(
-  provider: "acme",
-  event_type: "notification",
-  retry_enabled: false
-) do |webhook|
-  Notification.create!(data: webhook.payload)
+  # Wildcard (requires explicit handler)
+  stripe.on "*", handler: "Stripe::CatchAllHandler"
 end
 ```
 
-### Handler Options
+### Handler Classes
+
+A handler is any class that implements `#call(webhook)`:
+
+```ruby
+class InvoiceFailureHandler
+  def call(webhook)
+    invoice = Invoice.find_by!(stripe_id: webhook.payload["data"]["object"]["id"])
+    invoice.mark_failed!
+  end
+end
+```
+
+### Convention-Based Naming
+
+When you omit the `handler:` keyword, the handler class is derived from the provider name and event type:
+
+| Provider | Event Type | Handler Class |
+|---|---|---|
+| `:stripe` | `"charge.succeeded"` | `Stripe::ChargeSucceededHandler` |
+| `:stripe` | `"invoice.payment_failed"` | `Stripe::InvoicePaymentFailedHandler` |
+| `:github` | `"push"` | `Github::PushHandler` |
+
+### Retry Configuration
+
+Retry settings are resolved in order: handler class → provider defaults → global defaults.
+
+Set defaults on the provider:
+
+```ruby
+config.provider(:stripe,
+  secret: ENV["STRIPE_WEBHOOK_SECRET"],
+  retry_enabled: true,
+  max_retries: 5,
+  retry_delay: :exponential
+)
+```
+
+Override per handler class:
+
+```ruby
+class InvoiceFailureHandler
+  def self.retry_enabled = true
+  def self.max_retries = 10
+  def self.retry_delay = 60  # fixed 60s delay
+
+  def call(webhook)
+    # ...
+  end
+end
+```
 
 | Option | Default | Description |
 |---|---|---|
-| `provider` | required | Provider name (must match route and config) |
-| `event_type` | `"*"` | Event type to match (`"*"` for wildcard) |
 | `retry_enabled` | `true` | Whether to retry on failure |
 | `max_retries` | `3` | Maximum retry attempts |
 | `retry_delay` | `:exponential` | `:exponential` (5s, 10s, 20s, 40s...) or integer seconds |

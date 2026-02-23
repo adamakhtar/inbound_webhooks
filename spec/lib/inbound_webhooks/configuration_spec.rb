@@ -4,7 +4,20 @@ RSpec.describe InboundWebhooks::Configuration do
   subject(:config) { described_class.new }
 
   describe "#provider" do
-    it "stores provider configuration" do
+    it "returns a Provider instance" do
+      result = config.provider(:stripe, signature_header: "HTTP_STRIPE_SIGNATURE", secret: "whsec_123")
+      expect(result).to be_a(InboundWebhooks::Provider)
+      expect(result.name).to eq(:stripe)
+    end
+
+    it "stores the provider" do
+      config.provider(:stripe)
+      expect(config.providers[:stripe]).to be_a(InboundWebhooks::Provider)
+    end
+  end
+
+  describe "#provider_config" do
+    it "returns the provider's config hash" do
       config.provider(:stripe, signature_header: "HTTP_STRIPE_SIGNATURE", secret: "whsec_123")
 
       result = config.provider_config(:stripe)
