@@ -90,7 +90,7 @@
       </thead>
       <tbody>
         <% @webhooks.each do |webhook| %>
-          <tr>
+          <tr class="iw-clickable-row" onclick="window.location='<%= admin_webhook_path(webhook) %>'">
             <td><%= webhook.provider %></td>
             <td><%= webhook.event_type %></td>
             <td><%= status_badge(webhook.status) %></td>

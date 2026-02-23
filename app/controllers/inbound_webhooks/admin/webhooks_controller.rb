@@ -1,6 +1,10 @@
 module InboundWebhooks
   module Admin
     class WebhooksController < ApplicationController
+      def show
+        @webhook = Webhook.find(params[:id])
+      end
+
       def index
         scope = Webhook.all
         scope = scope.by_provider(params[:provider]) if params[:provider].present?

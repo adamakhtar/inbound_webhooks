@@ -34,6 +34,27 @@ module InboundWebhooks
       def registered_provider_names
         InboundWebhooks.configuration.providers.keys.map(&:to_s).sort
       end
+
+      def syntax_highlighted_json(data)
+        json = data.is_a?(String) ? data : JSON.pretty_generate(data)
+        escaped = ERB::Util.html_escape(json)
+
+        highlighted = escaped.gsub(
+          /("(?:[^"\\]|\\.)*")\s*(:)|("(?:[^"\\]|\\.)*")|(true|false|null)|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/
+        ) do
+          if $1
+            %(<span class="iw-json-key">#{$1}</span>#{$2})
+          elsif $3
+            %(<span class="iw-json-string">#{$3}</span>)
+          elsif $4
+            %(<span class="iw-json-bool">#{$4}</span>)
+          elsif $5
+            %(<span class="iw-json-number">#{$5}</span>)
+          end
+        end
+
+        %(<pre class="iw-json"><code>#{highlighted}</code></pre>).html_safe
+      end
     end
   end
 end

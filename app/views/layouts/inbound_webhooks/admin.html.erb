@@ -216,6 +216,73 @@
       align-items: center;
       gap: 6px;
     }
+
+    .iw-clickable-row { cursor: pointer; }
+
+    /* Show page */
+    .iw-show-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .iw-show-header h1 { font-size: 22px; font-weight: 600; margin: 0; }
+    .iw-show-id { font-size: 13px; color: var(--color-text-muted); }
+
+    .iw-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .iw-detail-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .iw-detail-card h2 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .iw-detail-card-error { border-left: 3px solid #dc3545; }
+
+    .iw-dl { display: grid; grid-template-columns: 160px 1fr; gap: 8px 16px; }
+    .iw-dl dt { font-weight: 600; font-size: 13px; color: var(--color-text-muted); }
+    .iw-dl dd { font-size: 13px; margin: 0; }
+
+    .iw-error-pre {
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #dc3545;
+      margin: 0;
+    }
+
+    .iw-json {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      border-radius: var(--radius);
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .iw-json code { font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace; }
+    .iw-json-key { color: #89b4fa; }
+    .iw-json-string { color: #a6e3a1; }
+    .iw-json-number { color: #fab387; }
+    .iw-json-bool { color: #cba6f7; }
   </style>
 </head>
 <body>

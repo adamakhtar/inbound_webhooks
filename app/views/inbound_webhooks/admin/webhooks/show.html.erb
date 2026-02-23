@@ -1,0 +1,57 @@
+<div class="iw-show-header">
+  <div>
+    <h1><%= @webhook.provider %> &middot; <%= @webhook.event_type %></h1>
+    <span class="iw-show-id">#<%= @webhook.id %></span>
+  </div>
+  <%= link_to "← Back to list", admin_webhooks_path, class: "iw-btn iw-btn-outline" %>
+</div>
+
+<div class="iw-detail-grid">
+  <div class="iw-detail-card">
+    <h2>Details</h2>
+    <dl class="iw-dl">
+      <dt>Status</dt>
+      <dd><%= status_badge(@webhook.status) %></dd>
+
+      <dt>Provider</dt>
+      <dd><%= @webhook.provider %></dd>
+
+      <dt>Event Type</dt>
+      <dd><%= @webhook.event_type %></dd>
+
+      <dt>Provider Event ID</dt>
+      <dd><%= @webhook.provider_event_id.presence || "—" %></dd>
+
+      <dt>IP Address</dt>
+      <dd><%= @webhook.ip_address.presence || "—" %></dd>
+
+      <dt>Retry Count</dt>
+      <dd><%= @webhook.retry_count %></dd>
+
+      <dt>Created</dt>
+      <dd><%= @webhook.created_at.strftime("%Y-%m-%d %H:%M:%S %Z") %></dd>
+
+      <dt>Processed</dt>
+      <dd><%= @webhook.processed_at&.strftime("%Y-%m-%d %H:%M:%S %Z") || "—" %></dd>
+    </dl>
+  </div>
+
+  <% if @webhook.error_message.present? %>
+    <div class="iw-detail-card iw-detail-card-error">
+      <h2>Error</h2>
+      <pre class="iw-error-pre"><%= @webhook.error_message %></pre>
+    </div>
+  <% end %>
+
+  <div class="iw-detail-card iw-detail-card-full">
+    <h2>Payload</h2>
+    <%= syntax_highlighted_json(@webhook.payload) %>
+  </div>
+
+  <% if @webhook.headers.present? %>
+    <div class="iw-detail-card iw-detail-card-full">
+      <h2>Headers</h2>
+      <%= syntax_highlighted_json(@webhook.headers) %>
+    </div>
+  <% end %>
+</div>
