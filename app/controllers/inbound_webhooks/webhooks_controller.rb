@@ -48,7 +48,7 @@ module InboundWebhooks
       verify_signature!
       validate_api_key!
     rescue SignatureVerifier::VerificationFailed, ApiKeyValidator::ValidationFailed => e
-      render json: { error: e.message }, status: :unauthorized
+      render json: {error: e.message}, status: :unauthorized
     end
 
     def verify_signature!

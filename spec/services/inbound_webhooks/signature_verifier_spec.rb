@@ -17,18 +17,18 @@ RSpec.describe InboundWebhooks::SignatureVerifier do
 
     it "passes with valid signature" do
       expected = OpenSSL::HMAC.hexdigest("sha256", secret, body)
-      headers = { "HTTP_X_WEBHOOK_SIGNATURE" => expected }
+      headers = {"HTTP_X_WEBHOOK_SIGNATURE" => expected}
       expect(verifier.verify!(body, headers)).to be_truthy
     end
 
     it "passes when signature has algorithm prefix" do
       expected = OpenSSL::HMAC.hexdigest("sha256", secret, body)
-      headers = { "HTTP_X_WEBHOOK_SIGNATURE" => "sha256=#{expected}" }
+      headers = {"HTTP_X_WEBHOOK_SIGNATURE" => "sha256=#{expected}"}
       expect(verifier.verify!(body, headers)).to be_truthy
     end
 
     it "raises on invalid signature" do
-      headers = { "HTTP_X_WEBHOOK_SIGNATURE" => "invalid_signature" }
+      headers = {"HTTP_X_WEBHOOK_SIGNATURE" => "invalid_signature"}
       expect { verifier.verify!(body, headers) }.to raise_error(
         InboundWebhooks::SignatureVerifier::VerificationFailed, "Invalid signature"
       )
@@ -55,12 +55,12 @@ RSpec.describe InboundWebhooks::SignatureVerifier do
     it "passes with valid timestamped signature" do
       expected = OpenSSL::HMAC.hexdigest("sha256", secret, body)
       header = "t=1234567890,v1=#{expected}"
-      headers = { "HTTP_STRIPE_SIGNATURE" => header }
+      headers = {"HTTP_STRIPE_SIGNATURE" => header}
       expect(verifier.verify!(body, headers)).to be_truthy
     end
 
     it "raises when v1 missing from timestamped header" do
-      headers = { "HTTP_STRIPE_SIGNATURE" => "t=1234567890" }
+      headers = {"HTTP_STRIPE_SIGNATURE" => "t=1234567890"}
       expect { verifier.verify!(body, headers) }.to raise_error(
         InboundWebhooks::SignatureVerifier::VerificationFailed
       )

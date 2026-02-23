@@ -1,12 +1,12 @@
 module InboundWebhooks
   class Configuration
     attr_accessor :providers,
-                  :admin_base_controller,
-                  :admin_authentication_required,
-                  :admin_authentication_method,
-                  :admin_current_user_method,
-                  :admin_authorization_required,
-                  :admin_authorization_method
+      :admin_base_controller,
+      :admin_authentication_required,
+      :admin_authentication_method,
+      :admin_current_user_method,
+      :admin_authorization_required,
+      :admin_authorization_method
 
     def initialize
       @providers = {}

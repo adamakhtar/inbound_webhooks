@@ -7,7 +7,7 @@ RSpec.describe "Admin authorization", type: :request do
     InboundWebhooks::Webhook.create!(
       provider: "stripe",
       event_type: "payment_intent.succeeded",
-      payload: { "id" => "evt_1" }
+      payload: {"id" => "evt_1"}
     )
   end
 

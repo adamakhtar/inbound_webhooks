@@ -1,14 +1,14 @@
 require_relative "lib/inbound_webhooks/version"
 
 Gem::Specification.new do |spec|
-  spec.name        = "inbound_webhooks"
-  spec.version     = InboundWebhooks::VERSION
-  spec.authors     = [ "Adam Akhtar" ]
-  spec.email       = [ "adamsubscribe@googlemail.com" ]
-  spec.homepage    = "https://github.com/adamakhtar/inbound_webhooks"
-  spec.summary     = "Rails engine for accepting and processing inbound webhooks"
+  spec.name = "inbound_webhooks"
+  spec.version = InboundWebhooks::VERSION
+  spec.authors = ["Adam Akhtar"]
+  spec.email = ["adamsubscribe@googlemail.com"]
+  spec.homepage = "https://github.com/adamakhtar/inbound_webhooks"
+  spec.summary = "Rails engine for accepting and processing inbound webhooks"
   spec.description = "A mountable Rails engine that handles inbound webhook reception, authentication, storage, and asynchronous processing with configurable retry logic."
-  spec.license     = "MIT"
+  spec.license = "MIT"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage

@@ -28,7 +28,7 @@ module InboundWebhooks
 
       def filter_active?
         %i[provider statuses created_at_preset created_at_from created_at_to
-           processed_at_preset processed_at_from processed_at_to].any? { |k| params[k].present? }
+          processed_at_preset processed_at_from processed_at_to].any? { |k| params[k].present? }
       end
 
       def registered_provider_names

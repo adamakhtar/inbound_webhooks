@@ -5,7 +5,7 @@ RSpec.describe InboundWebhooks::Admin::WebhooksController, type: :request do
     InboundWebhooks::Webhook.create!({
       provider: "stripe",
       event_type: "payment_intent.succeeded",
-      payload: { "id" => "evt_1" }
+      payload: {"id" => "evt_1"}
     }.merge(attrs))
   end
 
@@ -40,7 +40,7 @@ RSpec.describe InboundWebhooks::Admin::WebhooksController, type: :request do
         create_webhook(provider: "stripe")
         create_webhook(provider: "github", event_type: "push")
 
-        get "/webhooks/admin/webhooks", params: { provider: "stripe" }
+        get "/webhooks/admin/webhooks", params: {provider: "stripe"}
 
         expect(response.body).to include("payment_intent.succeeded")
         expect(response.body).not_to include("push")
@@ -53,7 +53,7 @@ RSpec.describe InboundWebhooks::Admin::WebhooksController, type: :request do
         create_webhook(status: "failed", event_type: "evt.failed", error_message: "boom")
         create_webhook(status: "processed", event_type: "evt.processed", processed_at: Time.current)
 
-        get "/webhooks/admin/webhooks", params: { statuses: %w[pending failed] }
+        get "/webhooks/admin/webhooks", params: {statuses: %w[pending failed]}
 
         expect(response.body).to include("evt.pending")
         expect(response.body).to include("evt.failed")
@@ -63,10 +63,10 @@ RSpec.describe InboundWebhooks::Admin::WebhooksController, type: :request do
 
     context "filtering by created_at preset" do
       it "shows webhooks created within the preset window" do
-        recent = create_webhook(event_type: "evt.recent")
+        create_webhook(event_type: "evt.recent")
         create_webhook(event_type: "evt.old", created_at: 3.days.ago)
 
-        get "/webhooks/admin/webhooks", params: { created_at_preset: "2h" }
+        get "/webhooks/admin/webhooks", params: {created_at_preset: "2h"}
 
         expect(response.body).to include("evt.recent")
         expect(response.body).not_to include("evt.old")
@@ -93,7 +93,7 @@ RSpec.describe InboundWebhooks::Admin::WebhooksController, type: :request do
         create_webhook(event_type: "evt.recent_proc", status: "processed", processed_at: 1.hour.ago)
         create_webhook(event_type: "evt.old_proc", status: "processed", processed_at: 5.days.ago)
 
-        get "/webhooks/admin/webhooks", params: { processed_at_preset: "24h" }
+        get "/webhooks/admin/webhooks", params: {processed_at_preset: "24h"}
 
         expect(response.body).to include("evt.recent_proc")
         expect(response.body).not_to include("evt.old_proc")
@@ -102,8 +102,8 @@ RSpec.describe InboundWebhooks::Admin::WebhooksController, type: :request do
 
     context "ordering" do
       it "orders by recently processed by default" do
-        first = create_webhook(event_type: "evt.first", status: "processed", processed_at: 2.hours.ago)
-        second = create_webhook(event_type: "evt.second", status: "processed", processed_at: 1.hour.ago)
+        create_webhook(event_type: "evt.first", status: "processed", processed_at: 2.hours.ago)
+        create_webhook(event_type: "evt.second", status: "processed", processed_at: 1.hour.ago)
 
         get "/webhooks/admin/webhooks"
 
@@ -111,10 +111,10 @@ RSpec.describe InboundWebhooks::Admin::WebhooksController, type: :request do
       end
 
       it "orders by recently created when requested" do
-        first = create_webhook(event_type: "evt.older", created_at: 2.hours.ago)
-        second = create_webhook(event_type: "evt.newer", created_at: 1.hour.ago)
+        create_webhook(event_type: "evt.older", created_at: 2.hours.ago)
+        create_webhook(event_type: "evt.newer", created_at: 1.hour.ago)
 
-        get "/webhooks/admin/webhooks", params: { order: "recently_created" }
+        get "/webhooks/admin/webhooks", params: {order: "recently_created"}
 
         expect(response.body.index("evt.newer")).to be < response.body.index("evt.older")
       end

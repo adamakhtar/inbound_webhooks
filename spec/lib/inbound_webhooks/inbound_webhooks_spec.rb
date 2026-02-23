@@ -1,7 +1,12 @@
 require "rails_helper"
 
 RSpec.describe InboundWebhooks do
-  let(:noop_handler) { Class.new { def call(w); end } }
+  let(:noop_handler) {
+    Class.new {
+      def call(w)
+      end
+    }
+  }
 
   before { stub_const("NoopHandler", noop_handler) }
 
@@ -17,8 +22,14 @@ RSpec.describe InboundWebhooks do
 
   describe ".handler_for" do
     it "returns exact match over wildcard" do
-      stub_const("ExactHandler", Class.new { def call(w); end })
-      stub_const("WildcardHandler", Class.new { def call(w); end })
+      stub_const("ExactHandler", Class.new {
+        def call(w)
+        end
+      })
+      stub_const("WildcardHandler", Class.new {
+        def call(w)
+        end
+      })
 
       described_class.configure do |config|
         stripe = config.provider(:stripe)
@@ -31,7 +42,10 @@ RSpec.describe InboundWebhooks do
     end
 
     it "falls back to wildcard handler" do
-      stub_const("WildcardHandler", Class.new { def call(w); end })
+      stub_const("WildcardHandler", Class.new {
+        def call(w)
+        end
+      })
 
       described_class.configure do |config|
         stripe = config.provider(:stripe)

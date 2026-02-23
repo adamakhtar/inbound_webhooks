@@ -5,7 +5,7 @@ RSpec.describe InboundWebhooks::ProcessWebhookJob, type: :job do
     InboundWebhooks::Webhook.create!(
       provider: "stripe",
       event_type: "payment_intent.succeeded",
-      payload: { "id" => "evt_123", "amount" => 1000 },
+      payload: {"id" => "evt_123", "amount" => 1000},
       status: "pending"
     )
   end
@@ -74,7 +74,7 @@ RSpec.describe InboundWebhooks::ProcessWebhookJob, type: :job do
 
       described_class.new.perform(webhook.id)
 
-      expect(calls).to eq([ :specific ])
+      expect(calls).to eq([:specific])
     end
 
     it "skips already processed webhooks" do

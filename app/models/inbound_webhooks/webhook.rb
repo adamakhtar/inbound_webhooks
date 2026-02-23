@@ -6,7 +6,7 @@ module InboundWebhooks
     validates :provider, presence: true
     validates :event_type, presence: true
     validates :payload, presence: true
-    validates :status, inclusion: { in: STATUSES }
+    validates :status, inclusion: {in: STATUSES}
 
     scope :by_provider, ->(provider) { where(provider: provider) }
     scope :by_event_type, ->(event_type) { where(event_type: event_type) }
@@ -32,7 +32,7 @@ module InboundWebhooks
     end
 
     def mark_retrying!(error)
-      attrs = { status: "retrying" }
+      attrs = {status: "retrying"}
       if error.is_a?(Exception)
         attrs[:error_message] = "#{error.class}: #{error.message}"
         attrs[:error_backtrace] = error.backtrace&.first(100)&.join("\n")
@@ -44,7 +44,7 @@ module InboundWebhooks
     end
 
     def mark_failed!(error)
-      attrs = { status: "failed" }
+      attrs = {status: "failed"}
       if error.is_a?(Exception)
         attrs[:error_message] = "#{error.class}: #{error.message}"
         attrs[:error_backtrace] = error.backtrace&.first(100)&.join("\n")
@@ -78,11 +78,13 @@ module InboundWebhooks
       status == "unhandled"
     end
 
-    private
+    class << self
+      private
 
-    def self.atomically_transition_to(id, new_status, from:)
-      rows_updated = where(id: id, status: from).update_all(status: new_status)
-      rows_updated > 0
+      def atomically_transition_to(id, new_status, from:)
+        rows_updated = where(id: id, status: from).update_all(status: new_status)
+        rows_updated > 0
+      end
     end
   end
 end

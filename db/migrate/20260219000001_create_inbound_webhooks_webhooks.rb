@@ -17,9 +17,9 @@ class CreateInboundWebhooksWebhooks < ActiveRecord::Migration[7.0]
 
     add_index :inbound_webhooks_webhooks, :provider
     add_index :inbound_webhooks_webhooks, :event_type
-    add_index :inbound_webhooks_webhooks, [ :provider, :provider_event_id ], unique: true, where: "provider_event_id IS NOT NULL"
+    add_index :inbound_webhooks_webhooks, [:provider, :provider_event_id], unique: true, where: "provider_event_id IS NOT NULL"
     add_index :inbound_webhooks_webhooks, :status
-    add_index :inbound_webhooks_webhooks, [ :provider, :event_type ]
-    add_index :inbound_webhooks_webhooks, [ :status, :created_at ]
+    add_index :inbound_webhooks_webhooks, [:provider, :event_type]
+    add_index :inbound_webhooks_webhooks, [:status, :created_at]
   end
 end

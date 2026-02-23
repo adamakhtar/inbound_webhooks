@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe InboundWebhooks::Webhook, type: :model do
   def build_webhook(**overrides)
     InboundWebhooks::Webhook.new(
-      { provider: "stripe", event_type: "payment_intent.succeeded", payload: { "id" => "evt_123" } }.merge(overrides)
+      {provider: "stripe", event_type: "payment_intent.succeeded", payload: {"id" => "evt_123"}}.merge(overrides)
     )
   end
 
@@ -31,11 +31,11 @@ RSpec.describe InboundWebhooks::Webhook, type: :model do
 
   describe "scopes" do
     before do
-      InboundWebhooks::Webhook.create!(provider: "stripe", event_type: "charge.succeeded", payload: { "id" => "1" }, status: "pending")
-      InboundWebhooks::Webhook.create!(provider: "github", event_type: "push", payload: { "id" => "2" }, status: "processed")
-      InboundWebhooks::Webhook.create!(provider: "stripe", event_type: "charge.failed", payload: { "id" => "3" }, status: "failed")
-      InboundWebhooks::Webhook.create!(provider: "stripe", event_type: "charge.refunded", payload: { "id" => "4" }, status: "retrying")
-      InboundWebhooks::Webhook.create!(provider: "stripe", event_type: "charge.unknown", payload: { "id" => "5" }, status: "unhandled")
+      InboundWebhooks::Webhook.create!(provider: "stripe", event_type: "charge.succeeded", payload: {"id" => "1"}, status: "pending")
+      InboundWebhooks::Webhook.create!(provider: "github", event_type: "push", payload: {"id" => "2"}, status: "processed")
+      InboundWebhooks::Webhook.create!(provider: "stripe", event_type: "charge.failed", payload: {"id" => "3"}, status: "failed")
+      InboundWebhooks::Webhook.create!(provider: "stripe", event_type: "charge.refunded", payload: {"id" => "4"}, status: "retrying")
+      InboundWebhooks::Webhook.create!(provider: "stripe", event_type: "charge.unknown", payload: {"id" => "5"}, status: "unhandled")
     end
 
     it "filters by provider" do
@@ -106,10 +106,10 @@ RSpec.describe InboundWebhooks::Webhook, type: :model do
 
     it "#mark_retrying! with exception stores backtrace" do
       error = begin
-                raise StandardError, "temporary failure"
-              rescue => e
-                e
-              end
+        raise StandardError, "temporary failure"
+      rescue => e
+        e
+      end
       webhook.mark_retrying!(error)
       webhook.reload
       expect(webhook.status).to eq("retrying")
@@ -129,10 +129,10 @@ RSpec.describe InboundWebhooks::Webhook, type: :model do
 
     it "#mark_failed! with exception stores backtrace" do
       error = begin
-                raise StandardError, "boom"
-              rescue => e
-                e
-              end
+        raise StandardError, "boom"
+      rescue => e
+        e
+      end
       webhook.mark_failed!(error)
       webhook.reload
       expect(webhook.status).to eq("failed")

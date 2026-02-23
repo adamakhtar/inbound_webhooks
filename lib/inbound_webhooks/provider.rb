@@ -29,13 +29,9 @@ module InboundWebhooks
       @handlers = []
     end
 
-    def config
-      @config
-    end
+    attr_reader :config
 
-    def retry_defaults
-      @retry_defaults
-    end
+    attr_reader :retry_defaults
 
     # Explicit: stripe.on "invoice.payment_failed", handler: "InvoiceFailureHandler"
     # Convention: stripe.on "invoice.payment_failed", "charge.succeeded"

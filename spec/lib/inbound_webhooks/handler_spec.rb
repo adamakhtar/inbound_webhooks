@@ -1,7 +1,12 @@
 require "rails_helper"
 
 RSpec.describe InboundWebhooks::Handler do
-  let(:noop_handler) { Class.new { def call(webhook); end } }
+  let(:noop_handler) {
+    Class.new {
+      def call(webhook)
+      end
+    }
+  }
 
   before { stub_const("NoopHandler", noop_handler) }
 
@@ -45,7 +50,7 @@ RSpec.describe InboundWebhooks::Handler do
     it "uses provider defaults when handler class has no config" do
       handler = described_class.new(
         provider: "stripe", event_type: "*", handler_class: "NoopHandler",
-        retry_defaults: { retry_enabled: false, max_retries: 10, retry_delay: 60 }
+        retry_defaults: {retry_enabled: false, max_retries: 10, retry_delay: 60}
       )
       expect(handler.retry_enabled).to be false
       expect(handler.max_retries).to eq(10)
@@ -54,7 +59,9 @@ RSpec.describe InboundWebhooks::Handler do
 
     it "prefers handler class config over provider defaults" do
       klass = Class.new do
-        def call(webhook); end
+        def call(webhook)
+        end
+
         def self.retry_enabled = false
         def self.max_retries = 7
         def self.retry_delay = 120
@@ -63,7 +70,7 @@ RSpec.describe InboundWebhooks::Handler do
 
       handler = described_class.new(
         provider: "stripe", event_type: "*", handler_class: "CustomRetryHandler",
-        retry_defaults: { retry_enabled: true, max_retries: 3, retry_delay: :exponential }
+        retry_defaults: {retry_enabled: true, max_retries: 3, retry_delay: :exponential}
       )
       expect(handler.retry_enabled).to be false
       expect(handler.max_retries).to eq(7)
@@ -89,7 +96,9 @@ RSpec.describe InboundWebhooks::Handler do
 
     it "returns fixed delay when configured on handler class" do
       klass = Class.new do
-        def call(webhook); end
+        def call(webhook)
+        end
+
         def self.retry_delay = 60
       end
       stub_const("FixedDelayHandler", klass)

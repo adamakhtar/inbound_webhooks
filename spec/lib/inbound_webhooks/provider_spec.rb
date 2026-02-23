@@ -77,8 +77,14 @@ RSpec.describe InboundWebhooks::Provider do
 
   describe "#handler_for" do
     before do
-      stub_const("ExactHandler", Class.new { def call(w); end })
-      stub_const("WildcardHandler", Class.new { def call(w); end })
+      stub_const("ExactHandler", Class.new {
+        def call(w)
+        end
+      })
+      stub_const("WildcardHandler", Class.new {
+        def call(w)
+        end
+      })
     end
 
     it "returns exact match" do
