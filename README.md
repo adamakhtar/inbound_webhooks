@@ -25,7 +25,7 @@ Run the installation:
 
 ```bash
 bundle install
-bin/rails inbound_webhooks:install:migrations
+bin/rails generate inbound_webhooks:install
 bin/rails db:migrate
 ```
 
