@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe "Admin authentication", type: :request do
   include Devise::Test::IntegrationHelpers
 
-  let(:user) { User.create!(email: "admin@example.com", password: "password123") }
+  let(:user) { User.create!(email: "admin@example.com", password: "password123", admin: true) }
 
   before do
     InboundWebhooks.configure do |config|
@@ -45,6 +45,7 @@ RSpec.describe "Admin authentication", type: :request do
   context "when admin_authentication_required is false" do
     before do
       InboundWebhooks.configuration.admin_authentication_required = false
+      InboundWebhooks.configuration.admin_authorization_required = false
     end
 
     it "skips authentication entirely" do

@@ -4,6 +4,7 @@ module InboundWebhooks
       include Pagy::Backend
 
       before_action :authenticate_inbound_webhooks_user!
+      before_action :authorize_inbound_webhooks_user!
 
       layout "inbound_webhooks/admin"
 
@@ -19,6 +20,20 @@ module InboundWebhooks
         unless respond_to?(method_name, true)
           raise NoMethodError,
             "InboundWebhooks: admin_authentication_method #{method_name.inspect} is not available. " \
+            "Make sure admin_base_controller (#{InboundWebhooks.configuration.admin_base_controller}) defines it."
+        end
+
+        send(method_name)
+      end
+
+      def authorize_inbound_webhooks_user!
+        return unless InboundWebhooks.configuration.admin_authorization_required
+
+        method_name = InboundWebhooks.configuration.admin_authorization_method
+
+        unless respond_to?(method_name, true)
+          raise NoMethodError,
+            "InboundWebhooks: admin_authorization_method #{method_name.inspect} is not available. " \
             "Make sure admin_base_controller (#{InboundWebhooks.configuration.admin_base_controller}) defines it."
         end
 

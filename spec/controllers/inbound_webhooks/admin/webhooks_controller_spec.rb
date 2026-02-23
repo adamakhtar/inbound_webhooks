@@ -11,7 +11,7 @@ RSpec.describe InboundWebhooks::Admin::WebhooksController, type: :request do
 
   include Devise::Test::IntegrationHelpers
 
-  let(:user) { User.create!(email: "admin@example.com", password: "password123") }
+  let(:user) { User.create!(email: "admin@example.com", password: "password123", admin: true) }
 
   before do
     InboundWebhooks.configure do |config|

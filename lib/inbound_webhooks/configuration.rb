@@ -4,7 +4,9 @@ module InboundWebhooks
                   :admin_base_controller,
                   :admin_authentication_required,
                   :admin_authentication_method,
-                  :admin_current_user_method
+                  :admin_current_user_method,
+                  :admin_authorization_required,
+                  :admin_authorization_method
 
     def initialize
       @providers = {}
@@ -12,6 +14,8 @@ module InboundWebhooks
       @admin_authentication_required = true
       @admin_authentication_method = :authenticate_user!
       @admin_current_user_method = :current_user
+      @admin_authorization_required = true
+      @admin_authorization_method = :authorize_user!
     end
 
     def provider(name, **options)
