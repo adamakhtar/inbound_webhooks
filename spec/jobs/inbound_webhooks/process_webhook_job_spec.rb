@@ -74,7 +74,7 @@ RSpec.describe InboundWebhooks::ProcessWebhookJob, type: :job do
 
       described_class.new.perform(webhook.id)
 
-      expect(calls).to eq([:specific])
+      expect(calls).to eq([ :specific ])
     end
 
     it "skips already processed webhooks" do

@@ -28,12 +28,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_000001) do
     t.integer "retry_count", default: 0
     t.string "status", default: "pending", null: false
     t.datetime "updated_at", null: false
-    t.index ["event_type"], name: "index_inbound_webhooks_webhooks_on_event_type"
-    t.index ["provider", "event_type"], name: "index_inbound_webhooks_webhooks_on_provider_and_event_type"
-    t.index ["provider"], name: "index_inbound_webhooks_webhooks_on_provider"
-    t.index ["provider_event_id"], name: "index_inbound_webhooks_webhooks_on_provider_event_id", unique: true, where: "(provider_event_id IS NOT NULL)"
-    t.index ["status", "created_at"], name: "index_inbound_webhooks_webhooks_on_status_and_created_at"
-    t.index ["status"], name: "index_inbound_webhooks_webhooks_on_status"
+    t.index [ "event_type" ], name: "index_inbound_webhooks_webhooks_on_event_type"
+    t.index [ "provider", "event_type" ], name: "index_inbound_webhooks_webhooks_on_provider_and_event_type"
+    t.index [ "provider" ], name: "index_inbound_webhooks_webhooks_on_provider"
+    t.index [ "provider_event_id" ], name: "index_inbound_webhooks_webhooks_on_provider_event_id", unique: true, where: "(provider_event_id IS NOT NULL)"
+    t.index [ "status", "created_at" ], name: "index_inbound_webhooks_webhooks_on_status_and_created_at"
+    t.index [ "status" ], name: "index_inbound_webhooks_webhooks_on_status"
   end
 
   create_table "users", force: :cascade do |t|
@@ -45,7 +45,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_000001) do
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
     t.datetime "updated_at", null: false
-    t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index [ "email" ], name: "index_users_on_email", unique: true
+    t.index [ "reset_password_token" ], name: "index_users_on_reset_password_token", unique: true
   end
 end
