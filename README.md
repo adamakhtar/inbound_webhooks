@@ -1,5 +1,7 @@
 # InboundWebhooks
 
+> **Heads up:** This is a personal project. I cannot commit to maintaining it, supporting issues, or guarantee it is fit for production use. Feel free to fork!
+
 A mountable Rails engine for accepting, authenticating, storing, and asynchronously processing inbound webhooks from any provider.
 
 ## Features
@@ -77,18 +79,18 @@ end
 
 ### Provider Options
 
-| Option | Default | Description |
-|---|---|---|
-| `signature_header` | `nil` | Request header containing the HMAC signature |
-| `signature_algorithm` | `"sha256"` | HMAC algorithm (`sha256` or `sha1`) |
-| `signature_format` | `:simple` | `:simple` or `:timestamped` (Stripe-style `t=...,v1=...`) |
-| `secret` | `nil` | Shared secret for HMAC computation |
-| `api_key_header` | `nil` | Request header containing the API key |
-| `api_key` | `nil` | Expected API key (string or array for key rotation) |
-| `event_type_key` | `nil` | JSON key to extract event type from payload (default: `"type"`) |
-| `retry_enabled` | `true` | Default retry setting for handlers on this provider |
-| `max_retries` | `3` | Default max retries for handlers on this provider |
-| `retry_delay` | `:exponential` | Default retry delay for handlers on this provider |
+| Option                | Default        | Description                                                     |
+| --------------------- | -------------- | --------------------------------------------------------------- |
+| `signature_header`    | `nil`          | Request header containing the HMAC signature                    |
+| `signature_algorithm` | `"sha256"`     | HMAC algorithm (`sha256` or `sha1`)                             |
+| `signature_format`    | `:simple`      | `:simple` or `:timestamped` (Stripe-style `t=...,v1=...`)       |
+| `secret`              | `nil`          | Shared secret for HMAC computation                              |
+| `api_key_header`      | `nil`          | Request header containing the API key                           |
+| `api_key`             | `nil`          | Expected API key (string or array for key rotation)             |
+| `event_type_key`      | `nil`          | JSON key to extract event type from payload (default: `"type"`) |
+| `retry_enabled`       | `true`         | Default retry setting for handlers on this provider             |
+| `max_retries`         | `3`            | Default max retries for handlers on this provider               |
+| `retry_delay`         | `:exponential` | Default retry delay for handlers on this provider               |
 
 ## Registering Handlers
 
@@ -133,11 +135,11 @@ end
 
 When you omit the `handler:` keyword, the handler class is derived from the provider name and event type:
 
-| Provider | Event Type | Handler Class |
-|---|---|---|
-| `:stripe` | `"charge.succeeded"` | `Stripe::ChargeSucceededHandler` |
+| Provider  | Event Type                 | Handler Class                         |
+| --------- | -------------------------- | ------------------------------------- |
+| `:stripe` | `"charge.succeeded"`       | `Stripe::ChargeSucceededHandler`      |
 | `:stripe` | `"invoice.payment_failed"` | `Stripe::InvoicePaymentFailedHandler` |
-| `:github` | `"push"` | `Github::PushHandler` |
+| `:github` | `"push"`                   | `Github::PushHandler`                 |
 
 ### Retry Configuration
 
@@ -168,11 +170,11 @@ class InvoiceFailureHandler
 end
 ```
 
-| Option | Default | Description |
-|---|---|---|
-| `retry_enabled` | `true` | Whether to retry on failure |
-| `max_retries` | `3` | Maximum retry attempts |
-| `retry_delay` | `:exponential` | `:exponential` (5s, 10s, 20s, 40s...) or integer seconds |
+| Option          | Default        | Description                                              |
+| --------------- | -------------- | -------------------------------------------------------- |
+| `retry_enabled` | `true`         | Whether to retry on failure                              |
+| `max_retries`   | `3`            | Maximum retry attempts                                   |
+| `retry_delay`   | `:exponential` | `:exponential` (5s, 10s, 20s, 40s...) or integer seconds |
 
 ## Webhook Object
 
