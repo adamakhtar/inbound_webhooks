@@ -3,13 +3,50 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [main]
+
+env:
+  RUBY_VERSION: ruby-3.4.7
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+
+      - name: Setup database
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/inbound_webhooks_test
+          RAILS_ENV: test
+        run: bundle exec rails db:create db:schema:load
+
+      - name: Run tests
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/inbound_webhooks_test
+          RAILS_ENV: test
+        run: bundle exec rspec
+
   lint:
     runs-on: ubuntu-latest
-    env:
-      RUBY_VERSION: ruby-3.4.7
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
