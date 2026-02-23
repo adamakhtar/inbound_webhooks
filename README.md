@@ -201,6 +201,39 @@ webhook.created_at        # => Time
 7. On success: status → `processed`
 8. On failure: retries (if enabled) or status → `failed`
 
+## Generators
+
+### Install
+
+Generates the initializer at `config/initializers/inbound_webhooks.rb` with commented-out examples for providers, handlers, and admin dashboard config:
+
+```bash
+bin/rails generate inbound_webhooks:install
+```
+
+### Handler
+
+Scaffolds a new handler class under `app/inbound_webhooks/`:
+
+```bash
+bin/rails generate inbound_webhooks:handler PROVIDER HANDLER_NAME
+```
+
+For example:
+
+```bash
+bin/rails generate inbound_webhooks:handler stripe charge_succeeded
+```
+
+This creates `app/inbound_webhooks/stripe/charge_succeeded_handler.rb`:
+
+```ruby
+class Stripe::ChargeSucceededHandler
+  def call(webhook)
+  end
+end
+```
+
 ## Testing
 
 ```bash
