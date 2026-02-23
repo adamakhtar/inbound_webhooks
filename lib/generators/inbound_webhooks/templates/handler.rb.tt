@@ -1,0 +1,10 @@
+class <%= handler_class_name %>
+  # Retry configuration (optional — overrides provider defaults)
+  #
+  # def self.retry_enabled = true
+  # def self.max_retries = 3
+  # def self.retry_delay = :exponential # or a number of seconds
+
+  def call(webhook)
+  end
+end
